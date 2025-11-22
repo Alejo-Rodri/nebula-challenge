@@ -1,24 +1,35 @@
 package cmd
 
 import (
-	"github.com/Alejo-Rodri/nebula-challenge/configs"
-	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
+	"fmt"
+	"os"
+
+	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 	"github.com/spf13/cobra"
 )
 
-var infoCmd = &cobra.Command{
-	Use: "info",
-	Short: "Shows information of the availability of the SSL labs server",
-	// TODO: Long description
-	Run: info,
+func InfoCmd(a app.AssessmentApp) *cobra.Command {
+	return &cobra.Command{
+		Use: "info",
+		Short: "Shows information of the availability of the SSL labs server",
+		Long:
+		// TODO define info object
+		`
+			This command should be used to check the availability of the SSL Labs servers, retrieve the engine and criteria version, and initialize the maximum number of concurrent assessments. Returns one Info object on success.
+		`,
+		Run: func (_ *cobra.Command, _ []string) {
+			info(a)
+		},
+	}
 }
 
-func init() {
-	rootCmd.AddCommand(infoCmd)
-}
+func info(a app.AssessmentApp) {
+	result, err := a.Info()
+	if err != nil {
+		// in this level the errors should be showed to the client of the app
+		fmt.Fprintln(os.Stderr, HumanizeError(err))
+		return
+	}
 
-func info(_ *cobra.Command, _ []string) {
-	client := api.NewApiClient(configs.Envs.BaseApiURL)
-
-	client.Info()
+	fmt.Println(result)
 }

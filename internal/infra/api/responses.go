@@ -1,10 +1,12 @@
-package types
+package api
 
 type ApiErrorsResponse struct {
-	Errors []struct {
-		Field   string `json:"field"`
-		Message string `json:"message"`
-	} `json:"errors"`
+	Errors []ApiError `json:"errors"`
+}
+
+type ApiError struct {
+    Field   string `json:"field"`
+    Message string `json:"message"`
 }
 
 type ApiInfoResponse struct {
@@ -17,3 +19,6 @@ type ApiInfoResponse struct {
 	Messages             []string `json:"messages"`
 }
 
+type ApiAnalyzeResponse struct {
+	
+}
