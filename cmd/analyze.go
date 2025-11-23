@@ -35,5 +35,5 @@ func analyze(cmd *cobra.Command, a app.AssessmentApp) {
 		return
 	}
 
-	fmt.Println(result)
+	fmt.Printf("%+v", result)
 }
