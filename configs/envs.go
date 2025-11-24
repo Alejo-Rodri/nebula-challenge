@@ -16,7 +16,7 @@ func initConfig() Config {
 	godotenv.Load()
 
 	return Config{
-		BaseApiURL: getEnv("BASE_API_URL", "https://api.ssllabs.com/api/v2/"),
+		BaseApiURL: getEnv("BASE_API_URL", "https://api.ssllabs.com/api/v2"),
 	}
 }
 

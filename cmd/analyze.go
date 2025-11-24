@@ -21,13 +21,17 @@ func AnalyzeCmd(a app.AssessmentApp) *cobra.Command {
 		},
 	}
 
-	analyzeCmd.Flags().StringP("domain", "d", "www.ssllabs.com", "Host or ip address to analyze")
+	analyzeCmd.Flags().StringP("domain", "d", "www.ssllabs.com", "Domain or ip address to analyze")
 
 	return analyzeCmd
 }
 
 func analyze(cmd *cobra.Command, a app.AssessmentApp) {
-	host, _ := cmd.Flags().GetString("host")
+	host, err := cmd.Flags().GetString("domain")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, HumanizeError(err))
+	}
+
 	result, err := a.Analyze(host)
 	if err != nil {
 		// in this level the errors should be showed to the client of the app
