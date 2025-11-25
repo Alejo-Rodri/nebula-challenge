@@ -5,6 +5,6 @@ import (
 )
 
 type AssessmentApp interface {
-	Info() (api.ApiInfoResponse, error)
-	Analyze(host string) (api.ApiAnalyzeResponse, error)
+	Info(get api.GetAbstractRequest[api.ApiInfoResponse]) (api.ApiInfoResponse, error)
+	Analyze(host string, get api.GetAbstractRequest[api.ApiAnalyzeResponse]) (api.ApiAnalyzeResponse, error)
 }

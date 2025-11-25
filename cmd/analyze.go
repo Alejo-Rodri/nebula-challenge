@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +43,7 @@ func analyze(cmd *cobra.Command, a app.AssessmentApp) {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 	}
 
-	result, err := a.Analyze(host)
+	result, err := a.Analyze(host, api.Get[api.ApiAnalyzeResponse])
 	if err != nil {
 		// in this level the errors should be showed to the client of the app
 		fmt.Fprintln(os.Stderr, HumanizeError(err))

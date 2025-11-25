@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-func get[T any](c *ApiClient, endpoint string, query url.Values) (T, error) {
+func Get[T any](c *ApiClient, endpoint string, query url.Values) (T, error) {
 	var result T
 
 	baseURL, err := url.Parse(c.baseURL + endpoint)

@@ -5,8 +5,9 @@ This is a CLI app in Go that uses the SSL labs API to check the TLS security of 
 ## Requirements
 
 - Go >= 1.25
-- Cobra
+- cobra
 - godotenv
+- testify
 
 ## Installation
 
@@ -67,5 +68,5 @@ The project has a `.env` file that only contains the url of the SSL labs API.
 
 Analysis status flow
 ```
-    DNS -> IN_PROGRESS -> READY or ERROR
+DNS -> IN_PROGRESS -> READY or ERROR
 ```

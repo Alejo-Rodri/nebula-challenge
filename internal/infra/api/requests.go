@@ -6,8 +6,10 @@ import (
 	"time"
 )
 
-func (c *ApiClient) Info() (ApiInfoResponse, error) {
-	result, err := get[ApiInfoResponse](c, "/info", nil)
+type GetAbstractRequest[T any] func(c *ApiClient, endpoint string, query url.Values) (T, error)
+
+func (c *ApiClient) Info(get GetAbstractRequest[ApiInfoResponse]) (ApiInfoResponse, error) {
+	result, err := get(c, "/info", nil)
 	if err != nil {
 		return result, err
 	}
@@ -17,7 +19,7 @@ func (c *ApiClient) Info() (ApiInfoResponse, error) {
 
 // basic flow
 // first request -> retry until READY or some ERROR
-func (c *ApiClient) Analyze(host string) (ApiAnalyzeResponse, error) {
+func (c *ApiClient) Analyze(host string, get GetAbstractRequest[ApiAnalyzeResponse]) (ApiAnalyzeResponse, error) {
 	var endpoint string = "/analyze"
 
 	baseURL, err := url.Parse(c.baseURL + endpoint)
@@ -32,7 +34,7 @@ func (c *ApiClient) Analyze(host string) (ApiAnalyzeResponse, error) {
 	query.Set("startNew", "on")
 	query.Set("all", "done")
 
-	result, err := get[ApiAnalyzeResponse](c, endpoint, query)
+	result, err := get(c, endpoint, query)
 	if err != nil {
 		return result, err
 	}
@@ -63,7 +65,7 @@ func (c *ApiClient) Analyze(host string) (ApiAnalyzeResponse, error) {
         	time.Sleep(5 * time.Second)
 		}
 
-		result, err = get[ApiAnalyzeResponse](c, endpoint, query)
+		result, err = get(c, endpoint, query)
 		fmt.Printf("status raw: %q\n", result.Status)
 		if err != nil {
 			return result, err
