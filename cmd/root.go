@@ -14,15 +14,19 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "nebula-challenge",
-	// TODO change short and long
-	Short: "A brief description of your application",
+	Short: "Checks the TLS security of a given domain",
 	Long: `
-		A longer description that spans multiple lines and likely contains
-		examples and usage of using your application. For example:
+		Nebula Challenge is a CLI tool written in Go that checks the TLS security
+		of a given domain using the SSL Labs API.
 
-		Cobra is a CLI library for Go that empowers applications.
-		This application is a tool to generate the needed files
-		to quickly create a Cobra application.
+		It allows you to:
+		- Retrieve general information about the SSL Labs servers
+		- Analyze a domain or IP and track its assessment status
+		- View detailed TLS results once the analysis is ready
+
+		This tool is useful for quick checks, scripting, automation,
+		and understanding how a domain scores in SSL Labs without
+		opening the web interface.
 	`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
