@@ -6,6 +6,7 @@ import (
 
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -30,5 +31,5 @@ func info(a app.AssessmentApp) {
 		return
 	}
 
-	fmt.Printf("%+v", result)
+	cli.PrintApiInfo(result)
 }
