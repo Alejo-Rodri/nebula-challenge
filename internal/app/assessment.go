@@ -17,8 +17,7 @@ type GetRequest[T any] interface {
 type AssessmentApp interface {
 	Info(get GetRequest[Info]) (Info, error)
 	Analyze(
-		host,
-		assessmentKey string,
+		host string,
 		execBackgraund bool,
 		get GetRequest[Analysis],
 	) (Analysis, error)

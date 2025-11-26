@@ -45,6 +45,7 @@ func Execute() {
 	}
 }
 
+var socketPath string
 
 func injectDeps() {
     client := api.NewApiClient(configs.Envs.BaseApiURL)
@@ -53,8 +54,11 @@ func injectDeps() {
 	assManager := db.NewAssessmentManager()
 
     rootCmd.AddCommand(InfoCmd(client, infoReq))
-    rootCmd.AddCommand(AnalyzeCmd(client, analyzeReq))
-	rootCmd.AddCommand(PrintCmd(&assManager))
+    rootCmd.AddCommand(AnalyzeCmd(client, analyzeReq, &assManager, socketPath))
+	rootCmd.AddCommand(PrintCmd(&assManager, socketPath))
+	rootCmd.AddCommand(ServeCmd(socketPath))
+
+	rootCmd.PersistentFlags().StringVar(&socketPath, "socket", "/tmp/nebula-challenge.sock", "unix socket path")
 }
 
 func init() {

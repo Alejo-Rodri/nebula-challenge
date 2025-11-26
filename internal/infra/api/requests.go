@@ -22,8 +22,7 @@ func (c *ApiClient) Info(get app.GetRequest[app.Info]) (app.Info, error) {
 // basic flow
 // first request -> retry until READY or some ERROR
 func (c *ApiClient) Analyze(
-	host,
-	assessmentKey string,
+	host string,
 	execBackgraund bool,
 	get app.GetRequest[app.Analysis],
 	) (app.Analysis, error) {
@@ -61,8 +60,6 @@ func (c *ApiClient) Analyze(
 			}
 		}
 	}
-
-	// se le inyectaria la funcion para almacenar el resultado y aca se llamaria
 
 	return result, nil
 }

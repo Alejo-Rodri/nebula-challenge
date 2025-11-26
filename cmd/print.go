@@ -1,22 +1,23 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+/* 	"fmt"
+	"os" */
 
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
-	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/daemon"
+	//"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
 	"github.com/spf13/cobra"
 )
 
-func PrintCmd(app app.AssessmentStorage) *cobra.Command {
+func PrintCmd(app app.AssessmentStorage, socketPath string) *cobra.Command {
 	var printCmd = &cobra.Command{
 		Use: "print",
 		Short: "Prints all the assessments done in the session",
 		Long: `
 		`,
 		Run: func (cmd *cobra.Command, args []string)  {
-			print(cmd, app)
+			print(cmd, app, socketPath)
 		},
 	}
 
@@ -25,8 +26,10 @@ func PrintCmd(app app.AssessmentStorage) *cobra.Command {
 	return printCmd
 }
 
-func print(cmd *cobra.Command, app app.AssessmentStorage) {
-	assessmentKey, err := cmd.Flags().GetString("key")
+func print(cmd *cobra.Command, app app.AssessmentStorage, socketPath string) {
+
+	daemon.ListValues(socketPath)
+	/* assessmentKey, err := cmd.Flags().GetString("key")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 	}
@@ -36,5 +39,5 @@ func print(cmd *cobra.Command, app app.AssessmentStorage) {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 	}
 
-	cli.PrintApiAnalyze(result)
+	cli.PrintApiAnalyze(result) */
 }

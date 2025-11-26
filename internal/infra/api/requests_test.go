@@ -108,7 +108,8 @@ func TestAnalyze(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func (t *testing.T)  {
 			mock, counter := mockSequence(tt.states, tt.finalErr)
-			result, err := client.Analyze("example.com", "", false, mock)
+			// TODO mock storage
+			result, err := client.Analyze("example.com", false, mock)
 
 			if tt.wantErr {
 				assert.Error(t, err)
