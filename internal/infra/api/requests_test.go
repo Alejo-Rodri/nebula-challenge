@@ -1,26 +1,53 @@
 package api
 
 import (
+	"net/http"
 	"net/url"
 	"testing"
 
+	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 	"github.com/stretchr/testify/assert"
 )
 
-func mockSequence(states []string, finalErr error) (GetAbstractRequest[ApiAnalyzeResponse], *int) {
+// PASO 1: Definición del tipo de función (si no lo hiciste antes)
+type FuncGetRequest[T any] func (
+    c *http.Client,
+    baseUrl,
+    endpoint string,
+    query url.Values,
+) (T, error)
+
+// PASO 2: Implementación del método Do (si no lo hiciste antes)
+func (f FuncGetRequest[T]) Do(
+    c *http.Client,
+    baseUrl,
+    endpoint string,
+    query url.Values,
+) (T, error) {
+    return f(c, baseUrl, endpoint, query)
+}
+
+func mockSequence(states []string, finalErr error) (app.GetRequest[app.Analysis], *int) {
 	count := 0
 
-	mock := func(c *ApiClient, endpoint string, query url.Values) (ApiAnalyzeResponse, error) {
+	mockFn := func (
+		c *http.Client,
+		baseUrl,
+		endpoint string,
+		query url.Values,
+	) (app.Analysis, error) {
 		if finalErr != nil && count == len(states) {
-			return ApiAnalyzeResponse{}, finalErr
+			return app.Analysis{}, finalErr
 		}
 
 		s := states[count]
 		count++
-		return ApiAnalyzeResponse{Status: s}, nil
+		return app.Analysis{Status: s}, nil
 	}
 
-	return mock, &count
+	mockImplementer := FuncGetRequest[app.Analysis](mockFn)
+
+	return mockImplementer, &count
 }
 
 func TestAnalyze(t *testing.T) {
@@ -81,7 +108,7 @@ func TestAnalyze(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func (t *testing.T)  {
 			mock, counter := mockSequence(tt.states, tt.finalErr)
-			result, err := client.Analyze("example.com", mock)
+			result, err := client.Analyze("example.com", "", false, mock)
 
 			if tt.wantErr {
 				assert.Error(t, err)

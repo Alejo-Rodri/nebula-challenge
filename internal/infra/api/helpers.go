@@ -6,12 +6,20 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 )
 
-func Get[T any](c *ApiClient, endpoint string, query url.Values) (T, error) {
+// c *ApiClient, 
+func Get[T any](
+		c *http.Client,
+		base,
+		endpoint string,
+		query url.Values,
+	) (T, error) {
 	var result T
 
-	baseURL, err := url.Parse(c.baseURL + endpoint)
+	baseURL, err := url.Parse(base + endpoint)
 	if err != nil {
 		return result, printError("GET", endpoint, ErrParsingUrlRequest, err)
 	}
@@ -23,7 +31,7 @@ func Get[T any](c *ApiClient, endpoint string, query url.Values) (T, error) {
 	}
 
 	fmt.Printf("url: %s\n", baseURL.String())
-	resp, err := c.http.Get(baseURL.String())
+	resp, err := c.Get(baseURL.String())
 	if err != nil {
 		return result, printError("GET", endpoint, ErrConnection, err)
 	}
@@ -85,4 +93,20 @@ func validateResponse(resp *http.Response) error {
 	}
 
 	return fmt.Errorf("%w: status=%d body=%s", errType, resp.StatusCode, string(body))
+}
+
+func mapInfo(r ApiInfoResponse) app.Info {
+    return app.Info{
+        EngineVersion:        r.EngineVersion,
+        CriteriaVersion:      r.CriteriaVersion,
+        ClientMaxAssessments: r.ClientMaxAssessments,
+        MaxAssessments:       r.MaxAssessments,
+        CurrentAssessments:   r.CurrentAssessments,
+        NewAssessmentCoolOff: r.NewAssessmentCoolOff,
+        Messages:             r.Messages,
+    }
+}
+
+func mapAnalysis(r ApiAnalyzeResponse) app.Analysis {
+	return app.Analysis{}
 }

@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"net/url"
 	"time"
+
+	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 )
 
-type GetAbstractRequest[T any] func(c *ApiClient, endpoint string, query url.Values) (T, error)
-
-func (c *ApiClient) Info(get GetAbstractRequest[ApiInfoResponse]) (ApiInfoResponse, error) {
-	result, err := get(c, "/info", nil)
+func (c *ApiClient) Info(get app.GetRequest[app.Info]) (app.Info, error) {
+	// TODO tengo que hacer el mapeo en algun lado
+	result, err := get.Do(c.http, c.baseURL, "/info", nil)
 	if err != nil {
 		return result, err
 	}
@@ -21,15 +22,17 @@ func (c *ApiClient) Info(get GetAbstractRequest[ApiInfoResponse]) (ApiInfoRespon
 // basic flow
 // first request -> retry until READY or some ERROR
 func (c *ApiClient) Analyze(
-	host string,
-	get GetAbstractRequest[ApiAnalyzeResponse],
-	) (ApiAnalyzeResponse, error) {
+	host,
+	assessmentKey string,
+	execBackgraund bool,
+	get app.GetRequest[app.Analysis],
+	) (app.Analysis, error) {
 
 	var endpoint string = "/analyze"
 
 	baseURL, err := url.Parse(c.baseURL + endpoint)
 	if err != nil {
-		return ApiAnalyzeResponse{}, printError("GET", endpoint, ErrParsingUrlRequest, err)
+		return app.Analysis{}, printError("GET", endpoint, ErrParsingUrlRequest, err)
 	}
 
 	// first request
@@ -39,7 +42,7 @@ func (c *ApiClient) Analyze(
 	query.Set("startNew", "on")
 	query.Set("all", "done")
 
-	result, err := get(c, endpoint, query)
+	result, err := get.Do(c.http, c.baseURL, endpoint, query)
 	if err != nil {
 		return result, err
 	}
@@ -51,7 +54,7 @@ func (c *ApiClient) Analyze(
 			return result, err
 		}
 
-		result, err = get(c, endpoint, query)
+		result, err = get.Do(c.http, c.baseURL, endpoint, query)
 		if err != nil {
 			if backoffErr := backoff(err); backoffErr != nil {
 				return result, backoffErr

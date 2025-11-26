@@ -8,6 +8,7 @@ import (
 
 	"github.com/Alejo-Rodri/nebula-challenge/configs"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/db"
 	"github.com/spf13/cobra"
 )
 
@@ -47,10 +48,13 @@ func Execute() {
 
 func injectDeps() {
     client := api.NewApiClient(configs.Envs.BaseApiURL)
+	infoReq := api.NewInfoRequest(client)
+	analyzeReq := api.NewAnalyzeRequest(client)
+	assManager := db.NewAssessmentManager()
 
-    rootCmd.AddCommand(InfoCmd(client))
-    rootCmd.AddCommand(AnalyzeCmd(client))
-	rootCmd.AddCommand(PrintCmd())
+    rootCmd.AddCommand(InfoCmd(client, infoReq))
+    rootCmd.AddCommand(AnalyzeCmd(client, analyzeReq))
+	rootCmd.AddCommand(PrintCmd(&assManager))
 }
 
 func init() {

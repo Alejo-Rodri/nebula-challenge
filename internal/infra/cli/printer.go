@@ -3,10 +3,10 @@ package cli
 import (
 	"fmt"
 
-	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 )
 
-func PrintApiInfo(info api.ApiInfoResponse) {
+func PrintApiInfo(info app.Info) {
 	fmt.Printf(
 		"Engine Version:        %s\n"+
 			"Criteria Version:      %s\n"+
@@ -28,7 +28,7 @@ func PrintApiInfo(info api.ApiInfoResponse) {
 	}
 }
 
-func PrintApiAnalyze(resp api.ApiAnalyzeResponse) {
+func PrintApiAnalyze(resp app.Analysis) {
 	fmt.Printf(
 		"Host:              %s\n"+
 			"Port:              %d\n"+
@@ -71,7 +71,7 @@ func PrintApiAnalyze(resp api.ApiAnalyzeResponse) {
 		}
 
 		fmt.Printf("    Progress:       %d%%\n", ep.Progress)
-		fmt.Printf("    ETA:            %ds\n", ep.Eta)
+		fmt.Printf("    ETA:            %ds\n", ep.ETA)
 		fmt.Printf("    Duration:       %dms\n", ep.Duration)
 		fmt.Printf("    Delegation:     %d\n", ep.Delegation)
 

@@ -1,12 +1,30 @@
 package app
 
 import (
-	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
+	"net/http"
+	"net/url"
 )
 
-type AssessmentApp interface {
-	
-	Info(get api.GetAbstractRequest[api.ApiInfoResponse]) (api.ApiInfoResponse, error)
-	Analyze(host string, get api.GetAbstractRequest[api.ApiAnalyzeResponse]) (api.ApiAnalyzeResponse, error)
+type GetRequest[T any] interface {
+	Do(
+		c *http.Client,
+		baseUrl,
+		endpoint string,
+		query url.Values,
+	) (T, error)
+}
 
+type AssessmentApp interface {
+	Info(get GetRequest[Info]) (Info, error)
+	Analyze(
+		host,
+		assessmentKey string,
+		execBackgraund bool,
+		get GetRequest[Analysis],
+	) (Analysis, error)
+}
+
+type AssessmentStorage interface {
+	Save(assessmentKey string, result Analysis) error
+	Get(assessmentKey string) (Analysis, error)
 }

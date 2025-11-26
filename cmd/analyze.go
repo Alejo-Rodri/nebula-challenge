@@ -5,12 +5,11 @@ import (
 	"os"
 
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
-	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
 	"github.com/spf13/cobra"
 )
 
-func AnalyzeCmd(a app.AssessmentApp) *cobra.Command {
+func AnalyzeCmd(a app.AssessmentApp, get app.GetRequest[app.Analysis]) *cobra.Command {
 	var analyzeCmd = &cobra.Command{
 		Use: "analyze",
 		Short: "Analyzes a domain or ip address",
@@ -29,25 +28,39 @@ func AnalyzeCmd(a app.AssessmentApp) *cobra.Command {
 			TLS details once the analysis is complete.
 		`,
 		Run: func (cmd *cobra.Command, _ []string)  {
-			analyze(cmd, a)
+			analyze(cmd, a, get)
 		},
 	}
 
 	analyzeCmd.Flags().StringP("domain", "d", "www.ssllabs.com", "Domain or ip address to analyze")
 
-	// debe haber una forma de poner una flag que no reciba nada como argumento, esa es la que se necesita para -p o --process
-	analyzeCmd.Flags().StringP("key", "k", "ssllabs", "Key used to save the results of the assessment")
+	analyzeCmd.Flags().BoolP("process", "p", false, "Indicates whether the command should run in the background")
+	analyzeCmd.Flags().StringP("key", "k", "", "Key used to save the results of the assessment, if empty the key is the url")
 
 	return analyzeCmd
 }
 
-func analyze(cmd *cobra.Command, a app.AssessmentApp) {
+func analyze(cmd *cobra.Command, a app.AssessmentApp, get app.GetRequest[app.Analysis]) {
 	host, err := cmd.Flags().GetString("domain")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 	}
 
-	result, err := a.Analyze(host, api.Get[api.ApiAnalyzeResponse])
+	isProcess, err := cmd.Flags().GetBool("process")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, HumanizeError(err))
+	}
+
+	assessmentKey, err := cmd.Flags().GetString("key")
+	if err != nil {
+		fmt.Fprintln(os.Stderr, HumanizeError(err))
+	}
+
+	if assessmentKey == "" {
+		assessmentKey = host
+	}
+
+	result, err := a.Analyze(host, assessmentKey, isProcess, get)
 	if err != nil {
 		// in this level the errors should be showed to the client of the app
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
