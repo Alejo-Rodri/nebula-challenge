@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"time"
@@ -19,7 +20,11 @@ func (c *ApiClient) Info(get GetAbstractRequest[ApiInfoResponse]) (ApiInfoRespon
 
 // basic flow
 // first request -> retry until READY or some ERROR
-func (c *ApiClient) Analyze(host string, get GetAbstractRequest[ApiAnalyzeResponse]) (ApiAnalyzeResponse, error) {
+func (c *ApiClient) Analyze(
+	host string,
+	get GetAbstractRequest[ApiAnalyzeResponse],
+	) (ApiAnalyzeResponse, error) {
+
 	var endpoint string = "/analyze"
 
 	baseURL, err := url.Parse(c.baseURL + endpoint)
@@ -38,39 +43,52 @@ func (c *ApiClient) Analyze(host string, get GetAbstractRequest[ApiAnalyzeRespon
 	if err != nil {
 		return result, err
 	}
-
-	// there should be another switch with the errors
-	// TODO randomize the delay
-	// if 503 → 15min idle
-	// if 529 → 30min idle
-	// if 429 → stops everything
+	
 	query.Set("startNew", "off")
+
 	for result.Status != "READY" {
-		switch result.Status {
-		case "ERROR":
-			return result, fmt.Errorf("%w: status=%s, body=%+v", ErrInvalidResponse, result.Status, result)
-
-		case "DNS":
-			// poll cada 5s
-			fmt.Println("sleeping 5s for DNS")
-			time.Sleep(5 * time.Second)
-
-		case "IN_PROGRESS":
-			// poll cada 15s
-			fmt.Println("sleeping 15s for IN_PROGRESS")
-			time.Sleep(15 * time.Second)
-
-		default:
-			fmt.Printf("unknown status %s, sleeping 5s\n", result.Status)
-        	time.Sleep(5 * time.Second)
-		}
+		handleStatus(result.Status)
 
 		result, err = get(c, endpoint, query)
-		fmt.Printf("status raw: %q\n", result.Status)
 		if err != nil {
-			return result, err
+			if backoffErr := backoff(err); backoffErr != nil {
+				return result, backoffErr
+			}
 		}
 	}
 
 	return result, nil
+}
+
+func handleStatus(status string) {
+    switch status {
+    case "DNS":
+        fmt.Println("sleeping 5s for DNS")
+        time.Sleep(5 * time.Second)
+    case "IN_PROGRESS":
+        fmt.Println("sleeping 15s for IN_PROGRESS")
+        time.Sleep(15 * time.Second)
+    default:
+        fmt.Printf("unknown status %s, sleeping 5s\n", status)
+        time.Sleep(5 * time.Second)
+    }
+}
+
+func backoff(err error) error {
+    switch {
+	// if 503 → 15min idle
+    case errors.Is(err, ErrNoAvailableService):
+        fmt.Println("the service in SSL labs is not available, sleeping 15min")
+        time.Sleep(15 * time.Minute)
+        return nil
+
+	// if 529 → 30min idle
+    case errors.Is(err, ErrOverloadedService):
+        fmt.Println("the service in SSL labs is overloaded right now, sleeping 30min")
+        time.Sleep(30 * time.Minute)
+        return nil
+    }
+
+    // if 429 or error → stops everything 
+    return err
 }
