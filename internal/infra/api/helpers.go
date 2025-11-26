@@ -22,7 +22,7 @@ func Get[T any](c *ApiClient, endpoint string, query url.Values) (T, error) {
 		baseURL.RawQuery = query.Encode()
 	}
 
-	//fmt.Printf("url: %s\n", baseURL.String())
+	fmt.Printf("url: %s\n", baseURL.String())
 	resp, err := c.http.Get(baseURL.String())
 	if err != nil {
 		return result, printError("GET", endpoint, ErrConnection, err)

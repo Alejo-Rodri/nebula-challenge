@@ -47,7 +47,9 @@ func (c *ApiClient) Analyze(
 	query.Set("startNew", "off")
 
 	for result.Status != "READY" {
-		handleStatus(result.Status)
+		if err := handleStatus(result.Status); err != nil {
+			return result, err
+		}
 
 		result, err = get(c, endpoint, query)
 		if err != nil {
@@ -57,11 +59,15 @@ func (c *ApiClient) Analyze(
 		}
 	}
 
+	// se le inyectaria la funcion para almacenar el resultado y aca se llamaria
+
 	return result, nil
 }
 
-func handleStatus(status string) {
+func handleStatus(status string) error {
     switch status {
+	case "ERROR":
+		return fmt.Errorf("%w: status=%s", ErrInvalidRequest, status)
     case "DNS":
         fmt.Println("sleeping 5s for DNS")
         time.Sleep(5 * time.Second)
@@ -72,6 +78,8 @@ func handleStatus(status string) {
         fmt.Printf("unknown status %s, sleeping 5s\n", status)
         time.Sleep(5 * time.Second)
     }
+
+	return nil
 }
 
 func backoff(err error) error {
