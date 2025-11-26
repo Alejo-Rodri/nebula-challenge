@@ -1,4 +1,4 @@
-package cmd
+	package cmd
 
 import (
 	"fmt"
@@ -34,6 +34,9 @@ func AnalyzeCmd(a app.AssessmentApp) *cobra.Command {
 	}
 
 	analyzeCmd.Flags().StringP("domain", "d", "www.ssllabs.com", "Domain or ip address to analyze")
+
+	// debe haber una forma de poner una flag que no reciba nada como argumento, esa es la que se necesita para -p o --process
+	analyzeCmd.Flags().StringP("key", "k", "ssllabs", "Key used to save the results of the assessment")
 
 	return analyzeCmd
 }

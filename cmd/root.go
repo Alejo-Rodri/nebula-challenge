@@ -50,6 +50,7 @@ func injectDeps() {
 
     rootCmd.AddCommand(InfoCmd(client))
     rootCmd.AddCommand(AnalyzeCmd(client))
+	rootCmd.AddCommand(PrintCmd())
 }
 
 func init() {
