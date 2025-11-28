@@ -9,31 +9,33 @@ import (
 	"net/http"
 )
 
-func newUnixClient(socket string) *http.Client {
-	return &http.Client{
-		Transport: &http.Transport{
-			DialContext: func (_ context.Context, _, _ string) (net.Conn, error) {
-				return net.Dial("unix", socket)
+type UnixClient struct {
+	client *http.Client
+}
+
+func NewUnixClient(socket string) *UnixClient {
+	return &UnixClient{
+		client: &http.Client{
+			Transport: &http.Transport{
+				DialContext: func (_ context.Context, _, _ string) (net.Conn, error) {
+					return net.Dial("unix", socket)
+				},
 			},
 		},
 	}
 }
 
-func AddValue(socket, v string) error {
+func (u *UnixClient) AddValue(v string) error {
 	// TODO handle errors
 	body, _ := json.Marshal(map[string]string{"Value": v})
 	
-	client := newUnixClient(socket)
-
-	_, err := client.Post("http://unix/add", "application/json", bytes.NewReader(body))
+	_, err := u.client.Post("http://unix/add", "application/json", bytes.NewReader(body))
 
 	return err
 }
 
-func ListValues(socket string) ([]string, error) {
-	client := newUnixClient(socket)
-
-	resp, err := client.Get("http://unix/list")
+func (u *UnixClient) ListValues() ([]string, error) {
+	resp, err := u.client.Get("http://unix/list")
 	if err != nil {
 		return nil, fmt.Errorf("%w", ErrListRequest)
 	}

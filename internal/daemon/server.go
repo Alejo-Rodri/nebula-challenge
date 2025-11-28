@@ -14,26 +14,34 @@ import (
 type Store struct {
 	mu sync.Mutex
 	repo app.AssessmentStorage
-	Data []string
 }
 
 func (s *Store) add(w http.ResponseWriter, r *http.Request) {
+	log.Println("received request /add")
 	var body struct{ Value string }
 	json.NewDecoder(r.Body).Decode(&body)
+	
+	if err := parseJSON(r.Body, body); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	s.mu.Lock()
+	/* s.mu.Lock()
+	s.repo.Save("", app.Analysis{})
 	s.Data = append(s.Data, body.Value)
 	s.mu.Unlock()
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK) */
 }
 
 func (s *Store) list(w http.ResponseWriter, r *http.Request) {
+	log.Println("received request /list")
 	s.mu.Lock()
-	resp := append([]string(nil), s.Data...)
+	s.repo.Get("")
+	//resp := append([]string(nil), s.Data...)
 	s.mu.Unlock()
 
-	json.NewEncoder(w).Encode(resp)
+	//json.NewEncoder(w).Encode(resp)
 }
 
 func RunServer(socket string) {

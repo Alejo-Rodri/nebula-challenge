@@ -16,7 +16,6 @@ func NewAssessmentManager() AssessmentManager {
 	}
 }
 
-// TODO assManager deberia ofrecer un lock que le permita a muchos la lectura pero solo a uno la escritura
 func (a *AssessmentManager) Get(assessmentKey string) (app.Analysis, error) {
 	result, ok := a.db[assessmentKey]
 	if !ok {

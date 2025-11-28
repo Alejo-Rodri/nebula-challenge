@@ -6,7 +6,7 @@ import (
 
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/daemon"
-	//"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +14,7 @@ func AnalyzeCmd(
 	a app.AssessmentApp,
 	get app.GetRequest[app.Analysis],
 	storage app.AssessmentStorage,
-	socketPath string,
+	unix *daemon.UnixClient,
 ) *cobra.Command {
 	var analyzeCmd = &cobra.Command{
 		Use: "analyze",
@@ -34,7 +34,7 @@ func AnalyzeCmd(
 			TLS details once the analysis is complete.
 		`,
 		Run: func (cmd *cobra.Command, _ []string)  {
-			analyze(cmd, a, get, storage, socketPath)
+			analyze(cmd, a, get, storage, unix)
 		},
 	}
 
@@ -50,17 +50,17 @@ func analyze(
 	cmd *cobra.Command, a app.AssessmentApp,
 	get app.GetRequest[app.Analysis],
 	storage app.AssessmentStorage,
-	socketPath string,
+	unix *daemon.UnixClient,
 ) {
 	host, err := cmd.Flags().GetString("domain")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 	}
 
-	/* isProcess, err := cmd.Flags().GetBool("process")
+	isProcess, err := cmd.Flags().GetBool("process")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
-	} */
+	}
 
 	assessmentKey, err := cmd.Flags().GetString("key")
 	if err != nil {
@@ -71,16 +71,16 @@ func analyze(
 		assessmentKey = host
 	}
 
-	/* result, err := a.Analyze(host, isProcess, get)
+	result, err := a.Analyze(host, isProcess, get)
 	if err != nil {
 		// in this level the errors should be showed to the client of the app
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 		return
-	} */
+	}
 
 	// se le inyectaria la funcion para almacenar el resultado y aca se llamaria
 	//storage.Save(assessmentKey, result)
-	daemon.AddValue(socketPath, assessmentKey)
+	unix.AddValue(assessmentKey)
 
-	//cli.PrintApiAnalyze(result)
+	cli.PrintApiAnalyze(result)
 }

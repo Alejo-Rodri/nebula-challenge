@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/Alejo-Rodri/nebula-challenge/configs"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/daemon"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/api"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/db"
 	"github.com/spf13/cobra"
@@ -53,12 +54,15 @@ func injectDeps() {
 	analyzeReq := api.NewAnalyzeRequest(client)
 	assManager := db.NewAssessmentManager()
 
-    rootCmd.AddCommand(InfoCmd(client, infoReq))
-    rootCmd.AddCommand(AnalyzeCmd(client, analyzeReq, &assManager, socketPath))
-	rootCmd.AddCommand(PrintCmd(&assManager, socketPath))
-	rootCmd.AddCommand(ServeCmd(socketPath))
-
 	rootCmd.PersistentFlags().StringVar(&socketPath, "socket", "/tmp/nebula-challenge.sock", "unix socket path")
+	unixClient := daemon.NewUnixClient(socketPath)
+
+	rootCmd.AddCommand(ServeCmd(socketPath))
+    rootCmd.AddCommand(InfoCmd(client, infoReq))
+    rootCmd.AddCommand(AnalyzeCmd(client, analyzeReq, &assManager, unixClient))
+	rootCmd.AddCommand(PrintCmd(&assManager, unixClient))
+
+	
 }
 
 func init() {
