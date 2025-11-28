@@ -1,16 +1,14 @@
 package cmd
 
 import (
-	/* 	"fmt"
-	   	"os" */
-
 	"fmt"
+	"os" 
 	"log"
 
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/daemon"
 
-	//"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/infra/cli"
 	"github.com/spf13/cobra"
 )
 
@@ -39,15 +37,15 @@ func print(cmd *cobra.Command, app app.AssessmentStorage, unix *daemon.UnixClien
 
 	log.Print(data)
 
-	/* assessmentKey, err := cmd.Flags().GetString("key")
+	assessmentKey, err := cmd.Flags().GetString("key")
 	if err != nil {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 	}
 
-	result, err := app.Get(assessmentKey)
+	result, err := app.GetByKey(assessmentKey)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, HumanizeError(err))
 	}
 
-	cli.PrintApiAnalyze(result) */
+	cli.PrintApiAnalyze(result)
 }

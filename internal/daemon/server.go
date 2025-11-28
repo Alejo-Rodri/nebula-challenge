@@ -48,9 +48,7 @@ func (s *Store) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.mu.Lock()
-
-	s.mu.Unlock()
+	s.listAllResults(w)
 
 	//json.NewEncoder(w).Encode(resp)
 }

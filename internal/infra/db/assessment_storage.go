@@ -16,7 +16,11 @@ func NewAssessmentManager() AssessmentManager {
 	}
 }
 
-func (a *AssessmentManager) Get(assessmentKey string) (app.Analysis, error) {
+func (a *AssessmentManager) GetAll() map[string]app.Analysis {
+	return a.db
+}
+
+func (a *AssessmentManager) GetByKey(assessmentKey string) (app.Analysis, error) {
 	result, ok := a.db[assessmentKey]
 	if !ok {
 		return result, fmt.Errorf("%w", ErrNotFound)
@@ -30,4 +34,3 @@ func (a *AssessmentManager) Save(assessmentKey string, result app.Analysis) erro
 
 	return nil
 }
-

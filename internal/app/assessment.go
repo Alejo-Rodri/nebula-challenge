@@ -25,5 +25,6 @@ type AssessmentApp interface {
 
 type AssessmentStorage interface {
 	Save(assessmentKey string, result Analysis) error
-	Get(assessmentKey string) (Analysis, error)
+	GetAll() map[string]Analysis
+	GetByKey(assessmentKey string) (Analysis, error)
 }
