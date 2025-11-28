@@ -49,8 +49,6 @@ func (s *Store) list(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.listAllResults(w)
-
-	//json.NewEncoder(w).Encode(resp)
 }
 
 func RunServer(socket string) {

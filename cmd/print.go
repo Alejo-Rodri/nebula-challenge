@@ -28,11 +28,12 @@ func PrintCmd(app app.AssessmentStorage, unix *daemon.UnixClient) *cobra.Command
 	return printCmd
 }
 
+// TODO improve errors
 func print(cmd *cobra.Command, app app.AssessmentStorage, unix *daemon.UnixClient) {
 
 	data, err := unix.ListValues()
 	if err != nil {
-		fmt.Printf("ERRRR %w", err)
+		fmt.Printf("ERRRR ", err)
 	}
 
 	log.Print(data)
