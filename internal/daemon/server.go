@@ -1,7 +1,7 @@
 package daemon
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"log"
 	"net"
 	"net/http"
@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/daemon/dto"
 )
 
 type Store struct {
@@ -18,27 +19,37 @@ type Store struct {
 
 func (s *Store) add(w http.ResponseWriter, r *http.Request) {
 	log.Println("received request /add")
-	var body struct{ Value string }
-	json.NewDecoder(r.Body).Decode(&body)
 	
+	var body dto.AddRequest
 	if err := parseJSON(r.Body, body); err != nil {
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	/* s.mu.Lock()
-	s.repo.Save("", app.Analysis{})
-	s.Data = append(s.Data, body.Value)
+	s.mu.Lock()
+	s.repo.Save(body.AssessmentKey, body.Result)
 	s.mu.Unlock()
 
-	w.WriteHeader(http.StatusOK) */
+	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Store) list(w http.ResponseWriter, r *http.Request) {
 	log.Println("received request /list")
+
+	var reqBody dto.ListRequest
+	if err := parseJSON(r.Body, reqBody); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if reqBody.AssessmentKey != "" {
+		s.listByKey(&reqBody, w)
+		return
+	}
+
 	s.mu.Lock()
-	s.repo.Get("")
-	//resp := append([]string(nil), s.Data...)
+
 	s.mu.Unlock()
 
 	//json.NewEncoder(w).Encode(resp)
