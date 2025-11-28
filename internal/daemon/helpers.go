@@ -7,8 +7,19 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/daemon/dto"
 )
+
+// TODO implement this
+func mapListAll(l dto.ListResponseAll) app.ListAllResults {
+	return app.ListAllResults{}
+}
+
+// TODO implement this
+func mapListByKey(l dto.ListResponseKey) app.Analysis {
+	return app.Analysis{}
+}
 
 func parseJSON(r io.Reader, v any) error {
 	dec := json.NewDecoder(r)
@@ -38,6 +49,7 @@ func writeError(message string, w http.ResponseWriter, statusCode int) error {
 
 func (s *Store) listByKey(r *dto.ListRequest, w http.ResponseWriter) {
 // TODO que pasa si hago return sin soltar el lock?
+// TODO se cambio a query params
 	s.mu.Lock()
 	result, err := s.repo.GetByKey(r.AssessmentKey)
 	if err != nil {

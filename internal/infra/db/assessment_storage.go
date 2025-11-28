@@ -16,6 +16,12 @@ func NewAssessmentManager() AssessmentManager {
 	}
 }
 
+func (a *AssessmentManager) Save(assessmentKey string, result app.Analysis) error {
+	a.db[assessmentKey] = result
+
+	return nil
+}
+
 func (a *AssessmentManager) GetAll() map[string]app.Analysis {
 	return a.db
 }
@@ -27,10 +33,4 @@ func (a *AssessmentManager) GetByKey(assessmentKey string) (app.Analysis, error)
 	}
 
 	return result, nil
-}
-
-func (a *AssessmentManager) Save(assessmentKey string, result app.Analysis) error {
-	a.db[assessmentKey] = result
-
-	return nil
 }

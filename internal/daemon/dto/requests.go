@@ -11,4 +11,3 @@ type AddRequest struct {
 type ListRequest struct {
 	AssessmentKey string
 }
-

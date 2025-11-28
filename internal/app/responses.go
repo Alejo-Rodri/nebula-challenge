@@ -1,5 +1,7 @@
 package app
 
+// api
+
 type Info struct {
     EngineVersion        string
     CriteriaVersion      string
@@ -35,4 +37,14 @@ type Endpoint struct {
     Duration          int
     ETA               int
     Delegation        int
+}
+
+// daemon
+type ListAllResults struct {
+    Assessments []AssessmentData
+}
+
+type AssessmentData struct {
+	AssessmentKey string
+	AssessmentStatus string
 }

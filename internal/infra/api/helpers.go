@@ -107,6 +107,7 @@ func mapInfo(r ApiInfoResponse) app.Info {
     }
 }
 
+// TODO implement this
 func mapAnalysis(r ApiAnalyzeResponse) app.Analysis {
 	return app.Analysis{}
 }

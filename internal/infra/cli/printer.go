@@ -78,3 +78,8 @@ func PrintApiAnalyze(resp app.Analysis) {
 		fmt.Println()
 	}
 }
+
+// TODO implement this
+func PrintAllResults(results app.ListAllResults) {
+
+}

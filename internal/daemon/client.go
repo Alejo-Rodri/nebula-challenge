@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+
+	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
+	"github.com/Alejo-Rodri/nebula-challenge/internal/daemon/dto"
 )
 
 type UnixClient struct {
@@ -25,25 +28,45 @@ func NewUnixClient(socket string) *UnixClient {
 	}
 }
 
-func (u *UnixClient) AddValue(v string) error {
-	// TODO handle errors
-	body, _ := json.Marshal(map[string]string{"Value": v})
+// TODO handle errors
+func (u *UnixClient) AddValue(assessmentKey string, assessment app.Analysis) error {
+	var req = dto.AddRequest{AssessmentKey: assessmentKey, Result: assessment}
+
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("")
+	}
 	
-	_, err := u.client.Post("http://unix/add", "application/json", bytes.NewReader(body))
+	_, err = u.client.Post("http://unix/add", "application/json", bytes.NewReader(reqBody))
 
 	return err
 }
 
-func (u *UnixClient) ListValues() ([]string, error) {
-	resp, err := u.client.Get("http://unix/list")
+// gets the assessment by the key :)
+func (u *UnixClient) GetAssResultByKey(assessmentKey string) (app.Analysis, error) {
+	return list(u, assessmentKey, mapListByKey)
+}
+
+func (u *UnixClient) ListAllValues() (app.ListAllResults, error) {
+	return list(u, "", mapListAll)
+}
+
+type mapper[T any, R any] func(T) R
+
+func list[T any, R any](u *UnixClient, assessmentKey string, m mapper[T, R]) (R, error) {
+	var result R
+
+	resp, err := u.client.Get("http://unix/list?key=" + assessmentKey)
 	if err != nil {
-		return nil, fmt.Errorf("%w", ErrListRequest)
+		return result, fmt.Errorf("%w", ErrListRequest)
 	}
 
 	defer resp.Body.Close()
 
-	var data []string
-	json.NewDecoder(resp.Body).Decode(&data)
+	var body T
+	if err := parseJSON(resp.Body, &body); err != nil {
+		return result, fmt.Errorf("%w", ErrParsingToJSON)
+	}
 
-	return data, nil
+	return m(body), nil
 }

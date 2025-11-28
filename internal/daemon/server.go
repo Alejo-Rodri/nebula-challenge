@@ -51,13 +51,13 @@ func (s *Store) list(w http.ResponseWriter, r *http.Request) {
 	s.listAllResults(w)
 }
 
-func RunServer(socket string) {
+func RunServer(socket string, db app.AssessmentStorage) {
 	// deletes the socket if already exists
 	if _, err := os.Stat(socket); err == nil {
 		os.Remove(socket)
 	}
 
-	store := &Store{}
+	store := &Store{repo: db}
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/add", store.add)

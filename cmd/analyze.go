@@ -13,7 +13,6 @@ import (
 func AnalyzeCmd(
 	a app.AssessmentApp,
 	get app.GetRequest[app.Analysis],
-	storage app.AssessmentStorage,
 	unix *daemon.UnixClient,
 ) *cobra.Command {
 	var analyzeCmd = &cobra.Command{
@@ -34,7 +33,7 @@ func AnalyzeCmd(
 			TLS details once the analysis is complete.
 		`,
 		Run: func (cmd *cobra.Command, _ []string)  {
-			analyze(cmd, a, get, storage, unix)
+			analyze(cmd, a, get, unix)
 		},
 	}
 
@@ -49,7 +48,6 @@ func AnalyzeCmd(
 func analyze(
 	cmd *cobra.Command, a app.AssessmentApp,
 	get app.GetRequest[app.Analysis],
-	storage app.AssessmentStorage,
 	unix *daemon.UnixClient,
 ) {
 	host, err := cmd.Flags().GetString("domain")
@@ -79,8 +77,7 @@ func analyze(
 	}
 
 	// se le inyectaria la funcion para almacenar el resultado y aca se llamaria
-	//storage.Save(assessmentKey, result)
-	unix.AddValue(assessmentKey)
+	unix.AddValue(assessmentKey, result)
 
 	cli.PrintApiAnalyze(result)
 }
