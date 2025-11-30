@@ -76,7 +76,7 @@ func (s *Store) listAllResults(w http.ResponseWriter) {
 	var response dto.ListResponseAll
 	
 	s.mu.Lock()
-
+	// TODO es necesario el lock para un get?
 	for key, result := range s.repo.GetAll() {
 		response.Assessments = append(response.Assessments, 
 			dto.AssessmentStatus{

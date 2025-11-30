@@ -10,7 +10,6 @@ import (
 )
 
 func (c *ApiClient) Info(get app.GetRequest[app.Info]) (app.Info, error) {
-	// TODO tengo que hacer el mapeo en algun lado
 	result, err := get.Do(c.http, c.baseURL, "/info", nil)
 	if err != nil {
 		return result, err
@@ -23,7 +22,7 @@ func (c *ApiClient) Info(get app.GetRequest[app.Info]) (app.Info, error) {
 // first request -> retry until READY or some ERROR
 func (c *ApiClient) Analyze(
 	host string,
-	execBackgraund bool,
+	execBackground bool,
 	get app.GetRequest[app.Analysis],
 	) (app.Analysis, error) {
 
@@ -44,6 +43,10 @@ func (c *ApiClient) Analyze(
 	result, err := get.Do(c.http, c.baseURL, endpoint, query)
 	if err != nil {
 		return result, err
+	}
+
+	if execBackground {
+		return result, nil
 	}
 	
 	query.Set("startNew", "off")
