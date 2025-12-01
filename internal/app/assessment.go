@@ -28,3 +28,7 @@ type AssessmentStorage interface {
 	GetAll() map[string]Analysis
 	GetByKey(assessmentKey string) (Analysis, error)
 }
+
+type Analize interface {
+	Analyze(host string) (Analysis, error)
+}

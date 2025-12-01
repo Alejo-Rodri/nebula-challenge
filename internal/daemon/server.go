@@ -14,9 +14,10 @@ import (
 )
 
 type Store struct {
-	mu sync.Mutex
+	qmu sync.Mutex
 	repo app.AssessmentStorage
 	queue *l.List
+	analyzer app.Analize
 }
 
 type AssessmentTime struct {
@@ -28,80 +29,48 @@ type AssessmentTime struct {
 
 func (s *Store) add(w http.ResponseWriter, r *http.Request) {
 	log.Println("received request /add")
-	
-	var body dto.AddRequest
-	if err := parseJSON(r.Body, body); err != nil {
 
+	var body dto.AddRequest
+	if err := parseJSON(r.Body, &body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if body.Result.Status == "IN_PROGRESS" || body.Result.Status == "DNS" {
+	status := body.Result.Status
+	if status == "IN_PROGRESS" || status == "DNS" {
 		s.queue.PushBack(&AssessmentTime{
-			key: body.AssessmentKey,
-			host: body.Result.Host,
-			status: body.Result.Status,
-			time: time.Now(),
+			key:    body.AssessmentKey,
+			host:   body.Result.Host,
+			status: status,
+			time:   time.Now(),
 		})
 	}
 
-	s.mu.Lock()
 	s.repo.Save(body.AssessmentKey, body.Result)
-	s.mu.Unlock()
 
 	w.WriteHeader(http.StatusOK)
 }
 
 func (s *Store) list(w http.ResponseWriter, r *http.Request) {
 	log.Println("received request /list")
+	q := r.URL.Query()
+	assKey := q.Get("key")
 
-	var reqBody dto.ListRequest
-	if err := parseJSON(r.Body, reqBody); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+	if assKey != "" {
+		s.listByKey(assKey, w)
 		return
 	}
 
-	if reqBody.AssessmentKey != "" {
-		s.listByKey(&reqBody, w)
-		return
-	}
-
-	// TODO volver ese dos una variable de entorno
-	// Todo es mejor aumentar el contador del bucle cada vez que se haya hecho la request porque puede que las condiciones no se cumplan
-	for range 2 {
-		front := s.queue.Front()
-		ass := front.Value.(AssessmentTime)
-
-		if time.Since(ass.time).Seconds() > 15 {
-			// TODO aqui se llama a la request
-			var result app.Analysis
-			s.queue.Remove(front)
-
-			dbAss, err := s.repo.GetByKey(ass.key)
-			if err != nil {
-				// TODO
-			}
-
-			if result.Status != dbAss.Status {
-				s.mu.Lock()
-				s.repo.Save(ass.key, result)
-				s.mu.Unlock()
-			} else {
-				s.queue.PushBack(&AssessmentTime{
-					key: ass.key,
-					host: ass.host,
-					status: result.Status,
-					time: time.Now(),
-				})
-			}
-		}
-		
-	}
+	// solamente actualiza si se imprimen todos los assessments
+	s.qmu.Lock()
+	s.processQueue()
+	s.qmu.Unlock()
 
 	s.listAllResults(w)
 }
 
-func RunServer(socket string, db app.AssessmentStorage) {
+
+func RunServer(socket string, db app.AssessmentStorage, analyzer app.Analize) {
 	// deletes the socket if already exists
 	if _, err := os.Stat(socket); err == nil {
 		os.Remove(socket)
@@ -110,6 +79,7 @@ func RunServer(socket string, db app.AssessmentStorage) {
 	store := &Store{
 		repo: db,
 		queue: l.New(),
+		analyzer: analyzer,
 	}
 
 	mux := http.NewServeMux()

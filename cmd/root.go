@@ -53,11 +53,12 @@ func injectDeps() {
 	infoReq := api.NewInfoRequest(client)
 	analyzeReq := api.NewAnalyzeRequest(client)
 	assManager := db.NewAssessmentManager()
+	analyzer := api.NewDaemonApi(client.Http)
 
 	rootCmd.PersistentFlags().StringVar(&socketPath, "socket", "/tmp/nebula-challenge.sock", "unix socket path")
 	unixClient := daemon.NewUnixClient(socketPath)
 
-	rootCmd.AddCommand(ServeCmd(socketPath, &assManager))
+	rootCmd.AddCommand(ServeCmd(socketPath, &assManager, analyzer))
     rootCmd.AddCommand(InfoCmd(client, infoReq))
     rootCmd.AddCommand(AnalyzeCmd(client, analyzeReq, unixClient))
 	rootCmd.AddCommand(PrintCmd(unixClient))

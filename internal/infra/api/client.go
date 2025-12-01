@@ -61,13 +61,13 @@ func (r GetAnalyzeRequest) Do(
 
 type ApiClient struct {
 	baseURL string
-	http *http.Client
+	Http *http.Client
 }
 
 func NewApiClient(baseURL string) *ApiClient {
 	return &ApiClient{
 		baseURL: baseURL,
-		http: &http.Client{
+		Http: &http.Client{
 			Timeout: 10 * time.Second,
 		},
 	}

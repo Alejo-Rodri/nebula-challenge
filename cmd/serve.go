@@ -6,12 +6,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func ServeCmd(socketPath string, db app.AssessmentStorage) *cobra.Command {
+func ServeCmd(socketPath string, db app.AssessmentStorage, analyzer app.Analize) *cobra.Command {
 	var serveCmd = &cobra.Command{
 		Use: "serve",
 		Short: "Run daemon",
 		Run: func (cmd *cobra.Command, args []string)  {
-			daemon.RunServer(socketPath, db)
+			daemon.RunServer(socketPath, db, analyzer)
 		},
 	}
 

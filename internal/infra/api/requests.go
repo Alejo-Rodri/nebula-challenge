@@ -10,7 +10,7 @@ import (
 )
 
 func (c *ApiClient) Info(get app.GetRequest[app.Info]) (app.Info, error) {
-	result, err := get.Do(c.http, c.baseURL, "/info", nil)
+	result, err := get.Do(c.Http, c.baseURL, "/info", nil)
 	if err != nil {
 		return result, err
 	}
@@ -40,7 +40,7 @@ func (c *ApiClient) Analyze(
 	query.Set("startNew", "on")
 	query.Set("all", "done")
 
-	result, err := get.Do(c.http, c.baseURL, endpoint, query)
+	result, err := get.Do(c.Http, c.baseURL, endpoint, query)
 	if err != nil {
 		return result, err
 	}
@@ -56,7 +56,7 @@ func (c *ApiClient) Analyze(
 			return result, err
 		}
 
-		result, err = get.Do(c.http, c.baseURL, endpoint, query)
+		result, err = get.Do(c.Http, c.baseURL, endpoint, query)
 		if err != nil {
 			if backoffErr := backoff(err); backoffErr != nil {
 				return result, backoffErr
