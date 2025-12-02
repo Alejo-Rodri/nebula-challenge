@@ -79,7 +79,13 @@ func PrintApiAnalyze(resp app.Analysis) {
 	}
 }
 
-// TODO implement this
 func PrintAllResults(results app.ListAllResults) {
+	if len(results.Assessments) == 0 {
+		fmt.Println("No assessments found")
+		return
+	}
 
+	for _, a := range results.Assessments {
+		fmt.Printf("Key: %s | Status: %s\n", a.AssessmentKey, a.AssessmentStatus)
+	}
 }

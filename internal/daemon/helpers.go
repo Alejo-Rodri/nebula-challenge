@@ -148,6 +148,7 @@ func (s *Store) processQueue() {
 			continue
 		}
 
+		// request
 		result, err := s.analyzer.Analyze(ass.host)
 		if err != nil {
 			log.Println("request error:", err)

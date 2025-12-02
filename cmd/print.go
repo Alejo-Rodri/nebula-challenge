@@ -15,6 +15,14 @@ func PrintCmd(unix *daemon.UnixClient) *cobra.Command {
 		Use: "print",
 		Short: "Prints all the assessments done in the session",
 		Long: `
+		The print command displays the assessments stored in the current session.
+
+		If no key is provided, it prints all available assessments and updates all not ready assessments.
+		If a key is provided, it prints the detailed information of the matching assessment.
+
+		Examples:
+		nebula-challenge print
+		nebula-challenge print -k my-key
 		`,
 		Run: func (cmd *cobra.Command, args []string)  {
 			print(cmd, unix)
@@ -26,7 +34,6 @@ func PrintCmd(unix *daemon.UnixClient) *cobra.Command {
 	return printCmd
 }
 
-// TODO improve errors
 func print(cmd *cobra.Command, unix *daemon.UnixClient) {
 	assessmentKey, err := cmd.Flags().GetString("key")
 	if err != nil {
@@ -40,6 +47,7 @@ func print(cmd *cobra.Command, unix *daemon.UnixClient) {
 		}
 
 		cli.PrintAllResults(results)
+		return
 	}
 
 	result, err := unix.GetAssResultByKey(assessmentKey)

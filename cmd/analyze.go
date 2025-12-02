@@ -20,17 +20,22 @@ func AnalyzeCmd(
 		Short: "Analyzes a domain or ip address and stores its value",
 		Long: `
 			The analyze command sends a request to the SSL Labs API to evaluate the TLS
-			security of a given domain or IP address.
+			security of a domain or IP address.
 
-			It starts an assessment (or retrieves an existing one) and waits through the
-			different analysis states until the final result is ready or an error occurs.
+			It starts an assessment (or retrieves one already in progress) and moves through
+			the different states until a final result or an error is reached.
 
-			Usage examples:
+			It can run normally or in the background.  
+			You can also provide a custom key to store the assessment results.
+
+			Examples:
 			nebula-challenge analyze -d example.com
 			nebula-challenge analyze --domain example.com
+			nebula-challenge analyze -d example.com -p
+			nebula-challenge analyze -d example.com -k my-key
+			nebula-challenge analyze -p -k my-key -d example.com
 
-			The command prints the assessment status, server grades, and other relevant
-			TLS details once the analysis is complete.
+			The command prints the assessment status, server grades, and other relevant TLS details.
 		`,
 		Run: func (cmd *cobra.Command, _ []string)  {
 			analyze(cmd, a, get, unix)

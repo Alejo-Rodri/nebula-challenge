@@ -107,7 +107,44 @@ func mapInfo(r ApiInfoResponse) app.Info {
     }
 }
 
-// TODO implement this
 func mapAnalysis(r ApiAnalyzeResponse) app.Analysis {
-	return app.Analysis{}
+	return app.Analysis{
+		Host:            r.Host,
+		Port:            r.Port,
+		Protocol:        r.Protocol,
+		IsPublic:        r.IsPublic,
+		Status:          r.Status,
+		StartTime:       r.StartTime,
+		TestTime:        r.TestTime,
+		EngineVersion:   r.EngineVersion,
+		CriteriaVersion: r.CriteriaVersion,
+		Endpoints:       mapEndpoints(r.Endpoints),
+	}
 }
+
+func mapEndpoints(es []ApiAnalyzeEndpoints) []app.Endpoint {
+	if len(es) == 0 {
+		return nil
+	}
+
+	out := make([]app.Endpoint, 0, len(es))
+
+	for _, e := range es {
+		out = append(out, app.Endpoint{
+			IPAddress:         e.IPAddress,
+			ServerName:        e.ServerName,
+			StatusMessage:     e.StatusMessage,
+			Grade:             e.Grade,
+			GradeTrustIgnored: e.GradeTrustIgnored,
+			HasWarnings:       e.HasWarnings,
+			IsExceptional:     e.IsExceptional,
+			Progress:          e.Progress,
+			Duration:          e.Duration,
+			ETA:               e.Eta,
+			Delegation:        e.Delegation,
+		})
+	}
+
+	return out
+}
+

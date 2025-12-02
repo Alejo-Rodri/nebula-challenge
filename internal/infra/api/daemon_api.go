@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/Alejo-Rodri/nebula-challenge/configs"
 	"github.com/Alejo-Rodri/nebula-challenge/internal/app"
 )
 
@@ -18,24 +19,24 @@ func NewDaemonApi(client *http.Client) *DaemonApi {
 }
 
 func (d *DaemonApi) Analyze(host string) (app.Analysis, error) {
+    endpoint := "/analyze"
 
-	var endpoint string = "/analyze"
+    base := configs.Envs.BaseApiURL
 
-	baseURL, err := url.Parse(host + endpoint)
-	if err != nil {
-		return app.Analysis{}, printError("GET", endpoint, ErrParsingUrlRequest, err)
-	}
+    baseURL, err := url.Parse(base)
+    if err != nil {
+        return app.Analysis{}, printError("GET", endpoint, ErrParsingUrlRequest, err)
+    }
 
-	// first request
-	// This parameter should be used only once to initiate a new assessment; further invocations should omit it to avoid causing an assessment loop.
-	query := baseURL.Query()
-	query.Set("host", host)
-	query.Set("all", "done")
+    query := url.Values{}
+    query.Set("host", host)
+    query.Set("all", "done")
 
-	result, err := Get[app.Analysis](d.client, host, endpoint, query)
-	if err != nil {
-		return result, err
-	}
+    result, err := Get[app.Analysis](d.client, baseURL.String(), endpoint, query)
+    if err != nil {
+        return result, err
+    }
 
-	return result, nil
+    return result, nil
 }
+
